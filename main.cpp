@@ -1,91 +1,81 @@
 #include <iostream>
 #include <conio.h>
+#include <ctime>
 
-using namespace std;
+int trenutniBroj = 1, vrednostBroja[6], pinKod[6], pinKodTacan;
+char key, buffer[128];
+
+void printInfo()
+{
+    #ifdef linux
+        system("clear");
+    #elif _WIN32
+        system("cls");
+    #endif
+
+    std::cout << "Press SPACE to change number, press ESC to select next number, press TAB to submit\n";
+    std::cout << "Enter this pin: ";
+
+    for (int i = 0; i < 6; i++)
+    {
+         sprintf(buffer, "%d", pinKod[i]);
+         std::cout << buffer;
+    }
+
+    std::cout << std::endl;
+    std::cout << "----------------------------------\n";
+    sprintf(buffer, "[%d] [%d] [%d] [%d] [%d] [%d]\n", vrednostBroja[0], vrednostBroja[1], vrednostBroja[2], vrednostBroja[3], vrednostBroja[4], vrednostBroja[5]);
+    std::cout << buffer;
+    std::cout << "----------------------------------\n";
+}
 
 int main()
 {
-    char key, buff[24];
-    int selOption = 0;
+    std::srand(std::time(nullptr));
+    for (int i = 0; i < 6; i++)
+        pinKod[i] = std::rand() % 10;
 
-    cout << "-> Milimetri\nCentimetri\nMetri";
-    while (key != 0x1B)
+    printInfo();
+
+    // Reset array values
+    for (int i = 0; i < 6; i++)
+        vrednostBroja[i] = 0;
+
+    while (key != 0x71)
     {
-        if (key == 0x73)
+        for (int i = 0; i < 6; i++)
         {
-            switch (selOption)
+            if (trenutniBroj == i + 1 && key == 0x20)
             {
-                case 0:
-                    selOption++;
-                    #ifdef linux
-                        system("clear");
-                    #elif _WIN32
-                        system("cls");
-                    #endif
-                    cout << "Milimetri\n-> Centimetri\nMetri";
-                    break;
+                vrednostBroja[i]++;
 
-                case 1:
-                    selOption++;
-                    #ifdef linux
-                        system("clear");
-                    #elif _WIN32
-                        system("cls");
-                    #endif
-                    cout << "Milimetri\nCentimetri\n-> Metri";
-                    break;
+                if (vrednostBroja[i] == 10)
+                    vrednostBroja[i] = 0;
+
+                printInfo();
             }
         }
 
-        else if (key == 0x77)
+        if (key == 0x1B)
         {
-            switch (selOption)
-            {
-                case 2:
-                    selOption--;
-                    #ifdef linux
-                        system("clear");
-                    #elif _WIN32
-                        system("cls");
-                    #endif
-                    cout << "Milimetri\n-> Centimetri\nMetri";
-                    break;
+            trenutniBroj++;
 
-                case 1:
-                    selOption--;
-                    #ifdef linux
-                        system("clear");
-                    #elif _WIN32
-                        system("cls");
-                    #endif
-                    cout << "-> Milimetri\nCentimetri\nMetri";
-                    break;
-            }
+            if (trenutniBroj == 7)
+                trenutniBroj = 1;
         }
 
-        else if (key == 0xA)
+        else if (key == 0x09)
         {
-            key = 7;
-            cout << key;
+            std::cout << "\n";
+            std::string tacanKod;
 
-            switch (selOption)
-            {
-                case 0:
-                    cout << "\n\nMilimetri";
-                    break;
+            for (int i = 0; i < 6; i++)
+                pinKodTacan = vrednostBroja[i] == pinKod[i] ? 1 : 0;
 
-                case 1:
-                    cout << "\n\nCentimetri";
-                    break;
-
-                case 2:
-                    cout << "\n\nMetri";
-                    break;
-            }
+            tacanKod = pinKodTacan ? "\n\n\tUneli ste tacan pin kod!\n": "\n\n\tNiste uneli tacan pin kod!\n";
+            std::cout << tacanKod;
         }
 
-        key = getch();
+        key = getche();
     }
-
-    return 0;
 }
